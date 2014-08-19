@@ -1,0 +1,204 @@
+﻿\documentclass[a4paper,11pt,final]{article}
+
+\usepackage[american]{babel} % needed for iso dates
+\usepackage[iso,american]{isodate} % use iso format for dates
+\usepackage[final]{listings} % code listings
+\usepackage{longtable} % auto-breaking tables
+\usepackage{booktabs} % fancy tables
+\usepackage{relsize} % provide relative font size changes
+\usepackage{underscore} % remove special status of '_' in ordinary text
+%\usepackage{verbatim} % improved verbatim environment
+%\usepackage{alltt}
+\usepackage{parskip} % handle non-indented paragraphs "properly"
+\usepackage{array} % new column definitions for tables
+\usepackage[normalem]{ulem}
+\usepackage[svgnames,table,hyperref]{xcolor} % define colors for strikeouts and underlines
+\usepackage{amsmath} % additional math symbols
+\usepackage{mathrsfs} % mathscr font
+\usepackage{multicol}
+\usepackage{fixltx2e}
+\usepackage{xspace}
+\usepackage{fixme}
+\usepackage[final]{graphicx}
+\usepackage[unicode=true,
+pdftitle={Explicitly defaulted relational and equality operators},
+pdfsubject={Proposal — Programming Language C++, Language Evolution Working Group},
+pdfauthor={Marcel Wid},
+bookmarks=true,
+bookmarksnumbered=true,
+pdfpagelabels=true,
+pdfpagemode=UseOutlines,
+pdfstartview=FitH,
+linktocpage=true,
+colorlinks=true,
+linkcolor=Red,
+citecolor=Navy,
+urlcolor=Blue,
+plainpages=false,
+pdfpagelabels=true,
+]{hyperref}
+
+%\usepackage{lmodern}
+%\usepackage[T1]{fontenc}
+
+\usepackage{fontspec}
+\pdfprotrudechars=2
+\pdfadjustspacing=2
+\usepackage{luatextra}
+\usepackage{microtype}
+\defaultfontfeatures{Ligatures=TeX}
+\setmainfont[Numbers=OldStyle]{Cambria}
+\setsansfont[Scale=MatchLowercase,Numbers=OldStyle]{Calibri}
+\setmonofont[Scale=MatchLowercase]{Consolas}
+\usepackage[math-style=TeX]{unicode-math}
+\setmathfont{Cambria Math}
+
+\usepackage{tocloft}
+\usepackage{titling}
+\usepackage{titlesec}
+\usepackage[pdftex, top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage[absolute]{textpos}
+\setlength{\TPHorizModule}{1cm}
+\setlength{\TPVertModule}{1cm}
+
+\usepackage{natbib}
+
+\renewcommand{\thesection}{\Roman{section}.}
+\cftsetindents{section}{0em}{2em}
+
+%%--------------------------------------------------
+%% Environments for code listings.
+
+% We use the 'listings' package, with some small customizations.  The
+% most interesting customization: all TeX commands are available
+% within comments.  Comments are set in italics, keywords and strings
+% don't get special treatment.
+
+\definecolor{directiveclr}{RGB}{128,64,0}
+\definecolor{keywordclr}{RGB}{0,0,255}
+\definecolor{identifierclr}{RGB}{0,0,0}
+\definecolor{emphstyleclr}{RGB}{0,128,192}
+\definecolor{constantclr}{RGB}{164,0,164}
+\definecolor{stringstyleclr}{RGB}{220,20,60} %{128,128,128}
+\definecolor{commentclr}{RGB}{0,128,0}
+
+\lstset{language=C++,
+        basicstyle=\footnotesize\ttfamily,
+				backgroundcolor=\color{gray!20},
+        keywordstyle=\bfseries\color{keywordclr},
+				directivestyle=\color{directiveclr},
+				commentstyle=\itshape\color{commentclr},
+				identifierstyle=\color{identifierclr},
+				emph={Author, Book, string, vector},
+				emphstyle=\color{emphstyleclr},
+				emph=[2]{CONSTANT},
+				emphstyle=[2]\color{constantclr},
+				stringstyle=\color{stringstyleclr},
+				moredelim=[is][\color{directiveclr}]{_}{_},
+        xleftmargin=7em,
+				xrightmargin=7em,
+        showstringspaces=false,
+        columns=flexible,
+        keepspaces=true,
+        texcl=true}
+
+% Code and definitions embedded in text.
+\newcommand{\tcode}[1]{\lstinline{#1}}
+
+\newcommand{\Rplus}{\protect\hspace{-.1em}\protect\raisebox{.1ex}{\small+}}
+\newcommand{\Cpp}{\mbox{C\Rplus\Rplus}\xspace}
+
+\setlength{\droptitle}{7em}
+\title{Explicitly defaulted relational and equality operators}
+\author{}
+\date{}
+
+\begin{document}
+
+\begin{textblock}{12}(8.5,2)
+\begin{tabular}{l l}
+\textbf{Document number:} & NXXXX\\
+\textbf{Date:} & \today\\
+%\textbf{Revises:} & N4109\\
+\textbf{Project:} & Programming Language \Cpp,\\
+& Language Evolution Working Group\\
+\textbf{Reply to:} & Marcel Wid\\
+& <\href{mailto:marcel.wid@ods-solutions.de}{marcel.wid@ods-solutions.de}>
+\end{tabular}
+\end{textblock}
+
+\maketitle
+
+\tableofcontents
+
+\section{Introduction}
+Sorting and searching is a common task in everyday programming. In order to be able to search or sort objects of a type \tcode{T}, the type \tcode{T} must provide relational and equality operators. For convenience of the users of type \tcode{T} it is necessary to implement all variants of these operators, which results in a lot of boilerplate code. This is needlessly verbose, error prone and contrary to modern \Cpp. Generally it is enough to provide only one relational operator, namely \tcode{operator<=()}, and all other relational and equality operators can be defined in terms of \tcode{operator<=()}. We propose an extension of the core language by allowing the relational and equality operators to be explicitly defaulted.
+
+\section{Motivation and Scope}
+Consider the following snipplet:
+
+\begin{lstlisting}
+#include _<string>_
+#include _<vector>_
+
+struct Author
+{
+    std::string lastname;
+    std::string firstname;
+};
+
+struct Book
+{
+    std::string title;
+    Author author;
+    std::string publisher;
+    unsigned short year;
+};
+
+std::vector<Book> books;
+\end{lstlisting}
+
+How do we want to sort the vector \tcode{books}? One reasonable possibility is to use 
+
+
+\section{Design Decisions}
+
+\section{Relation to N4126}
+\cite{oleg3}\cite{oleg1}\cite{oleg2}
+\begin{lstlisting}
+struct A
+{
+  short x;
+  int   y;
+  char  z;
+};
+
+struct B
+{
+  char  z;
+  short x;
+  int   y; 
+};
+
+struct C
+{
+  int   y;
+  short x;
+  char  z;
+};
+
+int main()
+{
+  std::cout << sizeof(A) << "\n" << sizeof(B) << "\n" << sizeof(C);
+}
+\end{lstlisting}
+
+\section{Technical Specifications}
+
+\section{Acknowledgments}
+
+\addcontentsline{toc}{section}{References}
+\bibliographystyle{newapa}
+\bibliography{references}
+
+\end{document}
