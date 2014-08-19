@@ -158,8 +158,54 @@ struct Book
 std::vector<Book> books;
 \end{lstlisting}
 
-How do we want to sort the vector \tcode{books}? One reasonable possibility is to use 
+How do we want to sort the vector \tcode{books}? One reasonable possibility is to use the lexicographical order of the \tcode{struct Book}, i.e. we first sort by \tcode{title} then by \tcode{author} then by \tcode{publisher} and finally by \tcode{year}. Therefor, we first have to implement all operators for the \tcode{struct Author}:
 
+\begin{lstlisting}
+struct Author
+{
+    // ...
+    bool operator<=(Author const& other)
+    {
+        if(lastname != other.lastname)
+            return lastname < other.lastname;
+        return firstname <= other.firstname;
+    }
+};
+\end{lstlisting}
+
+Here we used the operators \tcode{!=}, \tcode{<} and \tcode{<=} of \tcode{std::string}. The other comparison operators are now straightforward to implement:
+
+\begin{lstlisting}
+struct Author
+{
+    // ...
+    bool operator==(Author const& other)
+    {
+        return ((*this <= other) && (other <= *this));
+    }
+    
+    bool operator!=(Author const& other)
+    {
+        return !(*this == other);
+    }
+    
+    bool operator>=(Author const& other)
+    {
+        return other <= *this;
+    }
+    
+    bool operator<(Author const& other)
+    {
+        return ((*this <= other) && !(*this == other));
+    }
+    
+    bool operator>(Author const& other)
+    {
+        return other < *this;
+    }
+};
+\end{lstlisting}
+Of course, we could implement all other operators solely in terms of \tcode{operator<=()}.
 
 \section{Design Decisions}
 
