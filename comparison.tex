@@ -7,36 +7,19 @@
 \usepackage{booktabs} % fancy tables
 \usepackage{relsize} % provide relative font size changes
 \usepackage{underscore} % remove special status of '_' in ordinary text
-%\usepackage{verbatim} % improved verbatim environment
-%\usepackage{alltt}
+\usepackage{verbatim} % improved verbatim environment
 \usepackage{parskip} % handle non-indented paragraphs "properly"
-\usepackage{array} % new column definitions for tables
+%\usepackage{array} % new column definitions for tables
 \usepackage[normalem]{ulem}
 \usepackage[svgnames,table,hyperref]{xcolor} % define colors for strikeouts and underlines
-\usepackage{amsmath} % additional math symbols
-\usepackage{mathrsfs} % mathscr font
-\usepackage{multicol}
+%\usepackage{amsmath} % additional math symbols
+%\usepackage{mathrsfs} % mathscr font
+%\usepackage{multicol}
 \usepackage{fixltx2e}
 \usepackage{xspace}
 \usepackage{fixme}
 \usepackage[final]{graphicx}
-\usepackage[unicode=true,
-pdftitle={Explicitly defaulted relational and equality operators},
-pdfsubject={Proposal — Programming Language C++, Language Evolution Working Group},
-pdfauthor={Marcel Wid},
-bookmarks=true,
-bookmarksnumbered=true,
-pdfpagelabels=true,
-pdfpagemode=UseOutlines,
-pdfstartview=FitH,
-linktocpage=true,
-colorlinks=true,
-linkcolor=Red,
-citecolor=Navy,
-urlcolor=Blue,
-plainpages=false,
-pdfpagelabels=true,
-]{hyperref}
+\usepackage{hyperref}
 
 %\usepackage{lmodern}
 %\usepackage[T1]{fontenc}
@@ -56,15 +39,26 @@ pdfpagelabels=true,
 \usepackage{tocloft}
 \usepackage{titling}
 \usepackage{titlesec}
-\usepackage[pdftex, top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 \usepackage[absolute]{textpos}
 \setlength{\TPHorizModule}{1cm}
 \setlength{\TPVertModule}{1cm}
 
 \usepackage{natbib}
+\defcitealias{cpp11}{\CppXI}
+\defcitealias{cppdraft}{\CppXIV}
+\defcitealias{oleg1}{N3950}
+\defcitealias{oleg2}{N4114}
+\defcitealias{oleg3}{N4126}
 
 \renewcommand{\thesection}{\Roman{section}.}
 \cftsetindents{section}{0em}{2em}
+\renewcommand{\thesubsection}{\arabic{section}.\arabic{subsection}}
+
+\renewcommand{\theenumi}{\roman{enumi}}
+\renewcommand{\labelenumi}{(\theenumi)}
+
+\setcounter{tocdepth}{1}
 
 %%--------------------------------------------------
 %% Environments for code listings.
@@ -83,35 +77,75 @@ pdfpagelabels=true,
 \definecolor{commentclr}{RGB}{0,128,0}
 
 \lstset{language=C++,
-        basicstyle=\footnotesize\ttfamily,
-				backgroundcolor=\color{gray!20},
-        keywordstyle=\bfseries\color{keywordclr},
-				directivestyle=\color{directiveclr},
-				commentstyle=\itshape\color{commentclr},
-				identifierstyle=\color{identifierclr},
-				emph={Author, Book, string, vector},
-				emphstyle=\color{emphstyleclr},
-				emph=[2]{CONSTANT},
-				emphstyle=[2]\color{constantclr},
-				stringstyle=\color{stringstyleclr},
-				moredelim=[is][\color{directiveclr}]{_}{_},
-        xleftmargin=7em,
-				xrightmargin=7em,
-        showstringspaces=false,
-        columns=flexible,
-        keepspaces=true,
-        texcl=true}
+    basicstyle=\footnotesize\ttfamily,
+    backgroundcolor=\color{gray!20},
+    keywordstyle=\bfseries\color{keywordclr},
+    directivestyle=\color{directiveclr},
+    commentstyle=\itshape\color{commentclr},
+    identifierstyle=\color{identifierclr},
+    emph={Author, Book, string, vector},
+    emphstyle=\color{emphstyleclr},
+    emph=[2]{CONSTANT},
+    emphstyle=[2]\color{constantclr},
+    stringstyle=\color{stringstyleclr},
+    moredelim=[is][\color{directiveclr}]{_}{_},
+    xleftmargin=7em,
+    xrightmargin=7em,
+    showstringspaces=false,
+    columns=flexible,
+    keepspaces=true,
+    captionpos=b,
+    texcl=true
+}
+\makeatletter
+\def\fnum@lstlisting{%
+  {\bfseries\lstlistingname
+   \ifx\lst@@caption\@empty\else~\thelstlisting\fi}}%
+\makeatother
 
 % Code and definitions embedded in text.
-\newcommand{\tcode}[1]{\lstinline{#1}}
+\newcommand{\tcode}[1]{\lstinline[basicstyle=\normalsize\ttfamily]{#1}}
 
 \newcommand{\Rplus}{\protect\hspace{-.1em}\protect\raisebox{.1ex}{\small+}}
 \newcommand{\Cpp}{\mbox{C\Rplus\Rplus}\xspace}
+\newcommand{\CppXI}{\mbox{C\Rplus\Rplus 11}\xspace}
+\newcommand{\CppXIV}{\mbox{C\Rplus\Rplus 14}\xspace}
+
+% Theorem environments
+\usepackage[framemethod=default,skipabove=1.5em,skipbelow=1.5em]{mdframed}
+\mdfdefinestyle{thmstyle}{%
+    linecolor=red!60!black,%
+    linewidth=2pt,%
+    frametitlerule=true,%
+    frametitlebackgroundcolor=gray!20,%
+    innertopmargin=\topskip
+}
+\mdtheorem[style=thmstyle]{defi}{Definition}
 
 \setlength{\droptitle}{7em}
 \title{Explicitly defaulted relational and equality operators}
 \author{}
 \date{}
+
+\makeatletter
+\hypersetup{
+    unicode=true,
+    pdftitle={\@title},
+    pdfsubject={Proposal — Programming Language C++, Language Evolution Working Group},
+    pdfauthor={Marcel Wid},
+    pdfkeywords={proposal, c++, operator, relational, equality, defaulted},
+    bookmarksnumbered=true,
+    bookmarksdepth=subsection,
+    pdfpagemode=UseOutlines,
+    pdfstartview=FitH,
+    linktocpage=true,
+    colorlinks=true,
+    linkcolor=Red,
+    citecolor=Navy,
+    urlcolor=Blue,
+    plainpages=false
+}
+\makeatother
 
 \begin{document}
 
@@ -132,12 +166,13 @@ pdfpagelabels=true,
 \tableofcontents
 
 \section{Introduction}
-Sorting and searching is a common task in everyday programming. In order to be able to search or sort objects of a type \tcode{T}, the type \tcode{T} must provide relational and equality operators. For convenience of the users of type \tcode{T} it is necessary to implement all variants of these operators, which results in a lot of boilerplate code. This is needlessly verbose, error prone and contrary to modern \Cpp. Generally it is enough to provide only one relational operator, namely \tcode{operator<=()}, and all other relational and equality operators can be defined in terms of \tcode{operator<=()}. We propose an extension of the core language by allowing the relational and equality operators to be explicitly defaulted.
+Sorting and searching is a common task in everyday programming. In order to be able to search or sort objects of a type \tcode{T}, the type \tcode{T} must provide relational and equality operators. For convenience of the users of type \tcode{T} it is necessary to implement all variants of these operators, which results in a lot of boilerplate code. This is needlessly verbose, error prone and contrary to modern \Cpp. Generally it is enough to provide only one relational operator, namely \tcode{operator<=}, and all other relational and equality operators can be defined in terms of \tcode{operator<=}. We propose an extension of the core language by allowing the relational and equality operators to be explicitly defaulted.
 
 \section{Motivation and Scope}
-Consider the following snipplet:
+\subsection{Problem}
+Let's start with a simple example demonstrating the weakness of the current situation in \citetalias{cpp11}/\citetalias{cppdraft}:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=A simple example]
 #include _<string>_
 #include _<vector>_
 
@@ -149,68 +184,228 @@ struct Author
 
 struct Book
 {
-    std::string title;
-    Author author;
-    std::string publisher;
+    std::string    title;
+    Author         author;
+    std::string    publisher;
     unsigned short year;
 };
 
 std::vector<Book> books;
 \end{lstlisting}
 
-How do we want to sort the vector \tcode{books}? One reasonable possibility is to use the lexicographical order of the \tcode{struct Book}, i.e. we first sort by \tcode{title} then by \tcode{author} then by \tcode{publisher} and finally by \tcode{year}. Therefor, we first have to implement all operators for the \tcode{struct Author}:
+How do we want to sort the vector \tcode{books}? One reasonable possibility is to use the lexicographical order of the \tcode{Book}, i.e. we first sort by \tcode{title} then by \tcode{author} then by \tcode{publisher} and finally by \tcode{year}. Therefor, we first have to implement all operators for the \tcode{Author}:
 
-\begin{lstlisting}
-struct Author
+\begin{lstlisting}[caption=Implementation of \tcode{operator<=} for \tcode{Author}.]
+bool operator<=(const Author& lhs, const Author& rhs)
 {
-    // ...
-    bool operator<=(Author const& other)
-    {
-        if(lastname != other.lastname)
-            return lastname < other.lastname;
-        return firstname <= other.firstname;
-    }
-};
+    if(lhs.lastname != rhs.lastname)
+        return lhs.lastname < rhs.lastname;
+    else
+        return lhs.firstname <= rhs.firstname;
+}
 \end{lstlisting}
 
 Here we used the operators \tcode{!=}, \tcode{<} and \tcode{<=} of \tcode{std::string}. The other comparison operators are now straightforward to implement:
 
-\begin{lstlisting}
+\begin{lstlisting}[caption=Implementation of relational and equality operators in terms of \tcode{operator<=} for \tcode{Author}., label=compops]
+bool operator==(const Author& lhs, const Author& rhs)
+{
+    return ((lhs <= rhs) && (rhs <= lhs));
+}
+
+bool operator!=(const Author& lhs, const Author& rhs)
+{
+    return !(lhs == rhs);
+}
+
+bool operator>=(const Author& lhs, const Author& rhs)
+{
+    return rhs <= lhs;
+}
+
+bool operator<(const Author& lhs, const Author& rhs)
+{
+    return ((lhs <= rhs) && !(lhs == rhs));
+}
+
+bool operator>(const Author& lhs, const Author& rhs)
+{
+    return rhs < lhs;
+}
+\end{lstlisting}
+Of course, we could implement all the above operators solely in terms of \tcode{operator<=}. Having done the implementation for the relational and equality operators for \tcode{Author} we can now do the same for \tcode{Book}:
+
+\begin{lstlisting}[caption=Implementation of \tcode{operator<=} for \tcode{Book} using relation and equality operators of \tcode{Author}., label=bookwauthor]
+bool operator<=(const Book& lhs, const Book& rhs)
+{
+    if(lhs.title != rhs.title)
+        return lhs.title < rhs.title;
+    else if(lhs.author != rhs.author)          // here we use operators !=
+        return lhs.author < rhs.author;        // and < of struct Author
+    else if(lhs.publisher != rhs.publisher)
+        return lhs.publisher < rhs.publisher;
+    else
+        return lhs.year <= rhs.year;
+}
+\end{lstlisting}
+
+The other relational and equality operators for \tcode{Book} are implemented in exactly the same way as those for \tcode{Author} in listing \ref{compops}. Hence we do not repeat them here. Finally, let us mention another way we could implement the same ordering of \tcode{Book}, but this time we do not use the ordering of \tcode{Author}:
+
+\begin{lstlisting}[caption=Implementation of \tcode{operator<=} for \tcode{Book} without using relational or equality operators of \tcode{Author}., label=bookwoauthor]
+bool operator<=(const Book& lhs, const Book& rhs)
+{
+    if(lhs.title != rhs.title)
+        return lhs.title < rhs.title;
+    else if(lhs.author.lastname != rhs.author.lastname)
+        return lhs.author.lastname < rhs.author.lastname;
+    else if(lhs.author.firstname != rhs.author.firstname)
+        return lhs.author.firstname < rhs.author.firstname;
+    else if(lhs.publisher != rhs.publisher)
+        return lhs.publisher < rhs.publisher;
+    else
+        return lhs.year <= rhs.year;
+}
+\end{lstlisting}
+
+\subsection{Solution}
+The implementation of all the other comparison operators in term of \tcode{operator<=} as in listing \ref{compops} is needlessly verbose and error prone, while just being a purely mechanical task without any intellectual challenge. Such tasks can a compiler do better than humans and relieves the programmer of the burden of writing the same code over and over again. Therefore, we propose the following syntax:
+
+\begin{lstlisting}[caption=Definition of relational and equality operators as explicitly defaulted for \tcode{Author} (free functions).]
 struct Author
 {
     // ...
-    bool operator==(Author const& other)
+};
+
+bool operator<=(const Author& lhs, const Author& rhs)
+{
+    // as above
+}
+
+bool operator==(const Author&, const Author&) = default;
+
+bool operator!=(const Author&, const Author&) = default;
+
+bool operator>=(const Author&, const Author&) = default;
+
+bool operator< (const Author&, const Author&) = default;
+
+bool operator> (const Author&, const Author&) = default;
+\end{lstlisting}
+
+This tells the compiler to generate the implementations of these operators, which results in equivalent code to listing \ref{compops}. As you can see, these are free function. If you want them to be member functions of your class, the following syntax is proposed:
+
+\begin{lstlisting}[caption=Definition of relational and equality operators as explicitly defaulted for \tcode{Author} (member functions).]
+struct Author
+{
+    // ...
+
+    bool operator<=(const Author& other)
     {
-        return ((*this <= other) && (other <= *this));
+        // ...
     }
-    
-    bool operator!=(Author const& other)
-    {
-        return !(*this == other);
-    }
-    
-    bool operator>=(Author const& other)
-    {
-        return other <= *this;
-    }
-    
-    bool operator<(Author const& other)
-    {
-        return ((*this <= other) && !(*this == other));
-    }
-    
-    bool operator>(Author const& other)
-    {
-        return other < *this;
-    }
+
+    bool operator==(const Author&) = default;
+
+    bool operator!=(const Author&) = default;
+
+    bool operator>=(const Author&) = default;
+
+    bool operator< (const Author&) = default;
+
+    bool operator> (const Author&) = default;
 };
 \end{lstlisting}
-Of course, we could implement all other operators solely in terms of \tcode{operator<=()}.
+
+What about \tcode{operator<=}? Does it make sense to explicitly default this operator as well? Yes, it does. In the examples above we used the lexicographical order of \tcode{Author} and \tcode{Book}. For such situations, we propose the following syntax for an explicitly defaulted \tcode{operator<=}:
+
+\begin{lstlisting}[caption=Definition of explicitly defaulted \tcode{operator<=} for \tcode{Author} (free function).]
+struct Author
+{
+    // ...
+};
+
+bool operator<=(const Author&, const Author&) = default;
+\end{lstlisting}
+
+This requires that all members of \tcode{Author} provide the necessary operators, namely \tcode{operator!=}, \tcode{operator<} and \tcode{operator<=}. Similarly, to define \tcode{operator<=} as memeber function, the syntax is as follows:
+
+\begin{lstlisting}[caption=Definition of explicitly defaulted \tcode{operator<=} for \tcode{Author} (member function).]
+struct Author
+{
+    // ...
+
+    bool operator<=(const Author&) = default;
+};
+\end{lstlisting}
+
+%But actually, we propose a much shorter notation for the same effect, namely:
+%
+%\begin{lstlisting}[caption=Definition of relational and equality operators as explicitly defaulted for \tcode{Author} (short form).]
+%struct Author
+%{
+    %// ...
+    %
+    %bool operator<=(const Author& lhs, const Author& rhs)
+    %{
+        %// as above
+    %}
+    %
+    %default: ==, !=, >=, <, >;
+%};
+%\end{lstlisting}
+
+\subsection{Summary}
+
 
 \section{Design Decisions}
+\subsection{Mathematical Background}
+In this subsection we collect the necessary mathematical background we need to justify our design decision.
+
+\begin{defi}[Binary relation]
+A \emph{binary relation} $R$ on a set $A$ is a subset of the Cartesian product $A\times A$, i.e. a set of ordered pairs $(a,b)$ of elements of $A$.
+\end{defi}
+
+We are interested in binary relations having some additional properties.
+\begin{defi}[Properties of binary relations]
+A binary relation $R$ on a set $A$ is called
+\begin{itemize}
+\item \emph{reflexive} if $(a,a)\in R$ for all $a\in A$.
+\item \emph{irreflexive} if $(a,a)\notin R$ for all $a\in A$.
+\item \emph{symmetric} if $(a,b)\in R$ then $(b,a)\in R$ for all $a,b\in A$.
+\item \emph{asymmetric} if $(a,b)\in R$ then $(b,a)\notin R$ for all $a,b\in A$.
+\item \emph{antisymmetric} if $(a,b)\in R$ and $(b,a)\in R$ then $a=b$ for all $a,b\in A$.
+\item \emph{transitive} if $(a,b)\in R$ and $(b,c)\in R$ then $(a,c)\in R$ for all $a,b,c\in A$.
+\item \emph{negatively transitive} if $(a,b)\notin R$ and $(b,c)\notin R$ then $(a,c)\notin R$ for all $a,b,c\in A$.
+\item \emph{connected} if $(a,b)\in R$ or $(b,a)\in R$ or all $a,b\in A$ with $a\neq b$.
+\end{itemize}
+\end{defi}
+
+One of the most important and general relations are the following.
+\begin{defi}[Preorder]
+A binary relation $R$ on a set $A$ is called a \emph{preorder} if it is
+\begin{enumerate}
+\item reflexive and
+\item transitive.
+\end{enumerate}
+\end{defi}
+
+Equivalence relations are one of the most fundamental relations. They are preorders, which are additionally transitive.
+\begin{defi}[Eqivalence relation]
+A binary relation $R$ on a set $A$ is called an \emph{equivalence relation} if it is
+\begin{enumerate}
+\item reflexive,
+\item symmetric and
+\item transitive.
+\end{enumerate}
+\end{defi}
+
+After all those definitions, let's introduce a more familiar notation for relations. Instead of $(a,b)\in R$ people often write $aRb$. In our context another notation for a relation $R$ is more convenient:
+\[a \precsim b  (a,b)\in R.\]
+
+\subsection{Alternatives}
 
 \section{Relation to N4126}
-\cite{oleg3}\cite{oleg1}\cite{oleg2}
+\citetalias{oleg3}\citetalias{oleg1}\citetalias{oleg2}
 \begin{lstlisting}
 struct A
 {
@@ -240,6 +435,167 @@ int main()
 \end{lstlisting}
 
 \section{Technical Specifications}
+\subsection{Informal Specification}
+\subsubsection{Free Functions}
+In the following \verb|X| denotes a class, for which \verb|operator<=| is defined (either as member or as free function). We use \verb|const X&| for the type of the parameters for exposition only. We do not restrict the parameter type in any respect. The general rule is that
+\begin{verbatim}
+bool operator@(T1, T2) = default;
+\end{verbatim}
+is rewritten to
+\begin{verbatim}
+bool operator@(T1 lhs, T2 rhs)
+{
+    // ...
+}
+\end{verbatim}
+where \verb|@| is any of \verb|==|, \verb|!=|, \verb|>=|, \verb|<| or \verb|>|. Sometimes it might be necessary to make the free function \verb|operator@| a friend of class \verb|X|. The below rules apply accordingly.
+
+\paragraph{\texttt{operator==}}
+For a function definition of the form
+\begin{verbatim}
+bool operator==(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator==(const X& lhs, const X& rhs)
+{
+    return ((lhs <= rhs) && (rhs <= lhs));
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator!=}}
+For a function definition of the form
+\begin{verbatim}
+bool operator!=(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator!=(const X& lhs, const X& rhs)
+{
+    return (!(lhs <= rhs) || !(rhs <= lhs));
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator>=}}
+For a function definition of the form
+\begin{verbatim}
+bool operator>=(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator>=(const X& lhs, const X& rhs)
+{
+    return rhs <= lhs;
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator<}}
+For a function definition of the form
+\begin{verbatim}
+bool operator<(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator<(const X& lhs, const X& rhs)
+{
+    return ((lhs <= rhs) && !(rhs <= lhs));
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator>}}
+For a function definition of the form
+\begin{verbatim}
+bool operator>(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator>(const X& lhs, const X& rhs)
+{
+    return ((rhs <= lhs) && !(lhs <= rhs));
+}
+\end{verbatim}
+
+\subsubsection{Member Functions}
+In the following \verb|X| denotes a class, for which \verb|operator<=| is defined (either as member or as free function). We use \verb|const X&| for the type of the parameters for exposition only. We do not restrict the parameter type in any respect. The general rule is that
+\begin{verbatim}
+bool operator@(T) = default;
+\end{verbatim}
+is rewritten to
+\begin{verbatim}
+bool operator@(T other)
+{
+    // ...
+}
+\end{verbatim}
+where \verb|@| is any of \verb|==|, \verb|!=|, \verb|>=|, \verb|<| or \verb|>|.
+
+\paragraph{\texttt{operator==}}
+For a function definition of the form
+\begin{verbatim}
+bool operator==(const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator==(const X& other)
+{
+    return ((*this <= other) && (other <= *this));
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator!=}}
+For a function definition of the form
+\begin{verbatim}
+bool operator!=(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator!=(const X& other)
+{
+    return (!(*this <= other) || !(other <= *this));
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator>=}}
+For a function definition of the form
+\begin{verbatim}
+bool operator>=(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator>=(const X& other)
+{
+    return other <= *this;
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator<}}
+For a function definition of the form
+\begin{verbatim}
+bool operator<(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator<(const X& other)
+{
+    return ((*this <= other) && !(other <= *this));
+}
+\end{verbatim}
+
+\paragraph{\texttt{operator>}}
+For a function definition of the form
+\begin{verbatim}
+bool operator>(const X&, const X&) = default;
+\end{verbatim}
+an implementation shall provide an implicit definition equivalent to
+\begin{verbatim}
+bool operator>(const X& other)
+{
+    return ((other <= *this) && !(*this <= other));
+}
+\end{verbatim}
+
+\subsection{Proposed Wording}
+to be added ...
 
 \section{Acknowledgments}
 
