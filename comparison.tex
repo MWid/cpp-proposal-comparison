@@ -12,7 +12,8 @@
 %\usepackage{array} % new column definitions for tables
 \usepackage[normalem]{ulem}
 \usepackage[svgnames,table,hyperref]{xcolor} % define colors for strikeouts and underlines
-%\usepackage{amsmath} % additional math symbols
+\usepackage{amsmath} % additional math symbols
+\usepackage{mathtools}
 %\usepackage{mathrsfs} % mathscr font
 %\usepackage{multicol}
 \usepackage{fixltx2e}
@@ -33,6 +34,7 @@
 \setmainfont[Numbers=OldStyle]{Cambria}
 \setsansfont[Scale=MatchLowercase,Numbers=OldStyle]{Calibri}
 \setmonofont[Scale=MatchLowercase]{Consolas}
+\usepackage{lualatex-math}
 \usepackage[math-style=TeX]{unicode-math}
 \setmathfont{Cambria Math}
 
@@ -146,6 +148,9 @@
     plainpages=false
 }
 \makeatother
+
+\newcommand\nprecsim{\mathrel{\ooalign{$\precsim$\cr
+  \hidewidth\raise.225ex\hbox{$\slash\mkern.5mu$}\cr}}}
 
 \begin{document}
 
@@ -399,8 +404,16 @@ A binary relation $R$ on a set $A$ is called an \emph{equivalence relation} if i
 \end{enumerate}
 \end{defi}
 
-After all those definitions, let's introduce a more familiar notation for relations. Instead of $(a,b)\in R$ people often write $aRb$. In our context another notation for a relation $R$ is more convenient:
-\[a \precsim b  (a,b)\in R.\]
+Let's introduce a more familiar notation for a relation $R$. Instead of $(a,b)\in R$ people often write $aRb$. In our context another notation for a relation $R$ is more convenient:
+\begin{gather*}
+a \precsim b \text{ instead of } (a,b)\in R.
+\end{gather*}
+In what follows, we will use the symbol $\precsim$ for the relation $R$. This notation can be read as "preferred to".\par
+With any preorder $\precsim$ there are two other relations associated with:
+\begin{align*}
+a \prec b&\colon\Longleftrightarrow a\precsim b\text{ and } b\nprecsim a\\
+a \sim b&\colon\Longleftrightarrow a\precsim b\text{ and } b\precsim a
+\end{align*}
 
 \subsection{Alternatives}
 
