@@ -5,6 +5,7 @@
 \usepackage[final]{listings} % code listings
 \usepackage{longtable} % auto-breaking tables
 \usepackage{booktabs} % fancy tables
+\usepackage[labelfont=bf,position=below,singlelinecheck=true,width=.8\textwidth]{caption}
 \usepackage{relsize} % provide relative font size changes
 \usepackage{underscore} % remove special status of '_' in ordinary text
 \usepackage{verbatim} % improved verbatim environment
@@ -13,13 +14,19 @@
 \usepackage[normalem]{ulem}
 \usepackage[svgnames,table,hyperref]{xcolor} % define colors for strikeouts and underlines
 \usepackage{amsmath} % additional math symbols
-\usepackage{mathtools}
+\usepackage[centercolon=true]{mathtools}
 %\usepackage{mathrsfs} % mathscr font
 %\usepackage{multicol}
 \usepackage{fixltx2e}
 \usepackage{xspace}
 \usepackage{fixme}
 \usepackage[final]{graphicx}
+\usepackage[autostyle,english=american]{csquotes}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta}
+\usetikzlibrary{fit}
+\usetikzlibrary{backgrounds}
+\usetikzlibrary{shapes.geometric}
 \usepackage{hyperref}
 
 %\usepackage{lmodern}
@@ -99,11 +106,11 @@
     captionpos=b,
     texcl=true
 }
-\makeatletter
-\def\fnum@lstlisting{%
-  {\bfseries\lstlistingname
-   \ifx\lst@@caption\@empty\else~\thelstlisting\fi}}%
-\makeatother
+%\makeatletter
+%\def\fnum@lstlisting{%
+  %{\bfseries\lstlistingname
+   %\ifx\lst@@caption\@empty\else~\thelstlisting\fi}}%
+%\makeatother
 
 % Code and definitions embedded in text.
 \newcommand{\tcode}[1]{\lstinline[basicstyle=\normalsize\ttfamily]{#1}}
@@ -114,15 +121,34 @@
 \newcommand{\CppXIV}{\mbox{C\Rplus\Rplus 14}\xspace}
 
 % Theorem environments
+\usepackage{ntheorem}
 \usepackage[framemethod=default,skipabove=1.5em,skipbelow=1.5em]{mdframed}
-\mdfdefinestyle{thmstyle}{%
-    linecolor=red!60!black,%
-    linewidth=2pt,%
-    frametitlerule=true,%
-    frametitlebackgroundcolor=gray!20,%
-    innertopmargin=\topskip
+\theorembodyfont{\upshape}
+\mdfdefinestyle{defstyle}{%
+    linecolor=DarkRed,%
+    backgroundcolor=DarkRed!10,%
+    linewidth=2pt%
 }
-\mdtheorem[style=thmstyle]{defi}{Definition}
+\newmdtheoremenv[style=defstyle,ntheorem=true]{defi}{Definition}[subsection]
+
+\theorembodyfont{\itshape}
+\mdfdefinestyle{thmstyle}{%
+    linecolor=DarkGreen,%
+    backgroundcolor=DarkGreen!10,%
+    linewidth=2pt
+}
+\newmdtheoremenv[style=thmstyle,ntheorem=true]{prop}[defi]{Proposition}
+\newmdtheoremenv[style=thmstyle,ntheorem=true]{lem}[defi]{Lemma}
+
+\theoremheaderfont{\normalfont\itshape\bfseries}
+\theorembodyfont{\upshape}
+\mdfdefinestyle{remstyle}{%
+    linecolor=DarkSlateBlue,%
+    backgroundcolor=DarkSlateBlue!10,%
+    linewidth=2pt%
+}
+\newmdtheoremenv[style=remstyle,ntheorem=true]{rem}[defi]{Remark}
+\newmdtheoremenv[style=remstyle,ntheorem=true]{exam}[defi]{Example}
 
 \setlength{\droptitle}{7em}
 \title{Explicitly defaulted relational and equality operators}
@@ -143,14 +169,18 @@
     linktocpage=true,
     colorlinks=true,
     linkcolor=Red,
-    citecolor=Navy,
-    urlcolor=Blue,
+    citecolor=DarkCyan,
+    urlcolor=DarkMagenta,
     plainpages=false
 }
 \makeatother
 
-\newcommand\nprecsim{\mathrel{\ooalign{$\precsim$\cr
-  \hidewidth\raise.225ex\hbox{$\slash\mkern.5mu$}\cr}}}
+\newcommand{\nprecsim}{\mathrel{\ooalign{$\precsim$\cr
+  \hidewidth\raise.225ex\hbox{$\slash\mkern2mu$}\cr}}\xspace}
+
+\newcommand{\defby}{\mbox{\ensuremath{\,:\Longleftrightarrow\,}}\xspace}
+
+\numberwithin{equation}{subsection}
 
 \begin{document}
 
@@ -364,8 +394,9 @@ struct Author
 
 \section{Design Decisions}
 \subsection{Mathematical Background}
-In this subsection we collect the necessary mathematical background we need to justify our design decision.
+In this subsection we collect the necessary mathematical background we need to justify our design decision. An in depth treatment of partial orders and total orders may be found in \citet[chapitre III]{bourbaki}. A more basic treatment of relations can be found in \citet[chapter 4]{HowToProveIt}.
 
+\subsubsection{Order Relations}
 \begin{defi}[Binary relation]
 A \emph{binary relation} $R$ on a set $A$ is a subset of the Cartesian product $A\times A$, i.e. a set of ordered pairs $(a,b)$ of elements of $A$.
 \end{defi}
@@ -385,6 +416,14 @@ A binary relation $R$ on a set $A$ is called
 \end{itemize}
 \end{defi}
 
+There are some connections between those properties:
+\begin{lem}
+\begin{enumerate}
+\item An asymmetric binary relation is irreflexive.
+\item A transitive and irreflexive binary relation is asymmetric.
+\end{enumerate}
+\end{lem}
+
 One of the most important and general relations are the following.
 \begin{defi}[Preorder]
 A binary relation $R$ on a set $A$ is called a \emph{preorder} if it is
@@ -394,7 +433,7 @@ A binary relation $R$ on a set $A$ is called a \emph{preorder} if it is
 \end{enumerate}
 \end{defi}
 
-Equivalence relations are one of the most fundamental relations. They are preorders, which are additionally transitive.
+Equivalence relations are one of the most fundamental relations. They are preorders, which are additionally symmetric.
 \begin{defi}[Eqivalence relation]
 A binary relation $R$ on a set $A$ is called an \emph{equivalence relation} if it is
 \begin{enumerate}
@@ -404,48 +443,268 @@ A binary relation $R$ on a set $A$ is called an \emph{equivalence relation} if i
 \end{enumerate}
 \end{defi}
 
+If one requires antisymmetry instead of symmetry we get the notion of a partial order.
+\begin{defi}[Partial order]
+A binary relation $R$ on a set $A$ is called a \emph{partial order} if it is
+\begin{enumerate}
+\item reflexive,
+\item antisymmetric and
+\item transitive.
+\end{enumerate}
+\end{defi}
+
 Let's introduce a more familiar notation for a relation $R$. Instead of $(a,b)\in R$ people often write $aRb$. In our context another notation for a relation $R$ is more convenient:
-\begin{gather*}
-a \precsim b \text{ instead of } (a,b)\in R.
-\end{gather*}
-In what follows, we will use the symbol $\precsim$ for the relation $R$. This notation can be read as "preferred to".\par
-With any preorder $\precsim$ there are two other relations associated with:
 \begin{align*}
-a \prec b&\colon\Longleftrightarrow a\precsim b\text{ and } b\nprecsim a\\
-a \sim b&\colon\Longleftrightarrow a\precsim b\text{ and } b\precsim a
+a \precsim b &\text{ instead of } (a,b)\in R
+\intertext{and}
+a \nprecsim b &\text{ instead of } (a,b)\notin R.
 \end{align*}
 
+In what follows, we will use the symbol $\precsim$ for the relation $R$. This notation can be read as "less than".\par
+With any preorder $\precsim$ there are two other relations associated with:
+\begin{align}
+a \prec b&\defby a\precsim b\text{ and } b\nprecsim a,\label{strict}\\
+a \sim b&\defby a\precsim b\text{ and } b\precsim a.\label{equiv}
+\end{align}
+
+The first relation $\prec$ in \ref{strict} may be read as "strictly less than" and the second relation $\sim$ in \ref{equiv} may be read as "equivalent". These two relations associated to a preorder $\precsim$ have the following properties:
+
+\begin{prop}
+Let $\precsim$ be a preorder on a set $A$. For the associated relations it holds:
+\begin{enumerate}
+\item The relation $\prec$ defined by \ref{strict} is irreflexive and transitive.
+\item The relation $\sim$ defined by \ref{equiv} is an equivalence relation.
+\end{enumerate}
+\end{prop}
+
+\begin{rem}\label{complement}
+One may be tempted to define
+\begin{equation*}
+a \prec b\defby b \nprecsim a.
+\end{equation*}
+In contrast to \ref{strict} we omit the requirement $a\precsim b$. But in general this does not make sense. Consider the subsets $\{1,2\}$ and $\{3,4\}$ of the natural numbers $\mathbb{N}$ with partial order given by the usual subset relation. Then, of course, we have $\{1,2\}\nsubseteq \{3,4\}$ but also $\{3,4\}\nsubset\{1,2\}$.
+\end{rem}
+
+In general, it is not possible to get back the preorder $\precsim$ only from its associated strict part $\prec$. One needs both, the strict part $\prec$ and the equivalence relation $\sim$ to get back $\precsim$ by
+\begin{equation*}
+a \precsim b \Longleftrightarrow a \prec b \text{ or } a \sim b.
+\end{equation*}
+
+\begin{exam}\label{reconstruct}
+Let $A=\left\{a,b,c\right\}$ be a set with 3 distinct elements. We consider the relation
+\begin{equation*}
+R=\Bigl\{(a,a),(b,b),(c,c),(a,b),(b,a),(a,c),(b,c)\Bigr\}\subset A\times A.
+\end{equation*}
+This relation is obviously reflexive and it is easy to check that it is also transitive. Hence, $R$ is a preorder (it is even a total preorder). The associated strict relation consists of the 2 elements $(a,c)$ and $(b,c)$. All other 5 elements belong to the associated equivalence relation. We denote the strict relation by $P_R$, i.e.
+\begin{equation*}
+P_R:=\Bigl\{(a,c),(b,c)\Bigr\}
+\end{equation*}
+and the equivalence relation by $E_R$, i.e.
+\begin{equation*}
+E_R:=\Bigl\{(a,a),(b,b),(c,c),(a,b),(b,a)\Bigr\}.
+\end{equation*}
+Starting with the (strict) relation $P_R$ we can construct 2 relations for which $P_R$ is the associated strict relation:
+\begin{itemize}
+\item Define $R_1$ by adding the diagonal of $A\times A$ to $P_R$:
+\begin{equation*}
+R_1:=\Bigl\{(a,a),(b,b),(c,c),(a,c),(b,c)\Bigr\}
+\end{equation*}
+\item Define $R_2$ as the union of $P_R$ and those pairs $(x,y)\in A\times A$, which are incomparable, i.e. $(x,y)\notin P_R$ and $(y,x)\notin P_R$:
+\begin{equation*}
+R_2:=\Bigl\{(a,a),(b,b),(c,c),(a,b),(b,a),(a,c),(b,c)\Bigr\}
+\end{equation*}
+\end{itemize}
+Thus, the preorder $R$ is not uniquely determined by $P_R$. We need additional information like knowing the equivalence relation $E_R$ or some more properties of $P_R$,.
+\end{exam}
+
+In applications one is in particular interested in relations on a set $A$, for which any two elements $a,b\in A$ are comparable. This leads to the following definition.
+\begin{defi}[Total orders]
+Let $\precsim$ be a binary relation on a set $A$.
+\begin{enumerate}
+\item The relation $\precsim$ is called a \emph{total preorder} if it is reflexive, transitive and connected.
+\item The relation $\precsim$ is called a \emph{total order} if it is an antisymmetric total preorder.
+\end{enumerate}
+\end{defi}
+
+The relation $\prec$ associated to a total preorder $\precsim$ by \ref{strict} has a special name:
+\begin{defi}[Strict weak order]
+A binary relation $R$ on a set $A$ is called a \emph{strict weak order} if it is asymmetric and negatively transitive.
+\end{defi}
+
+\begin{rem}
+If $\precsim$ is a partial order, the associated relation $\prec$ is often called a \emph{strict partial order}. Similarly, if $\precsim$ is a total order, the associated relation $\prec$ is called a \emph{strict total order}. This terminology is slightly misleading: A strict partial order is not a special kind of partial order. It is not a partial order at all, since it is not reflexive. The same applies to strict total orders.
+\end{rem}
+
+As we have seen in example \ref{reconstruct} above, a preorder is not uniquely determined by its associated strict relation. But for a strict weak order we have the following result.
+\begin{prop}
+\begin{enumerate}
+\item Let $\precsim$ be a total preorder on a set $A$. Then the associated relation $\prec$ by \ref{strict} is a strict weak order.
+\item Let $\prec$ be a strict weak order on a set $A$. Then the relation $\precsim$ on $A$ defined by
+\begin{equation*}
+a \precsim b\defby a \prec b \text{ or } (a\nprec b\text{ and } b\nprec a)
+\end{equation*}
+is a total preorder.
+\item The constructions (i) and (ii) are inverse to each other.
+\end{enumerate}
+\end{prop}
+
+If $\precsim$ is a preorder on a set $A$ we refer to the pair $(A,\precsim)$ as a \emph{preordered set}. Given a family of preordered sets $(A_1,\precsim_1),\dotsc,(A_n,\precsim_n)$ we can form the product
+\begin{equation*}
+A:=\prod_{i=1}^n A_i.
+\end{equation*}
+An element $a\in A$ can be written as $(a_1,\dotsc,a_n)$ with $a_i\in A_i$ for all $i=1,\dotsc,n$.
+
+\begin{defi}[Lexicographical order]\label{lexorder}
+For a family of preordered sets $(A_1,\precsim_1),\dotsc,(A_n,\precsim_n)$ the relation $\precsim$ defined on the product $A$ by
+\begin{equation*}
+a \precsim b\defby \begin{dcases*}
+a_i \sim b_i & for all $i=1,\dotsc,n$, or\\
+a_k \prec b_k & for $k:=\min\Bigl\{i\bigm| a_i\nsim b_i\Bigr\}$.
+\end{dcases*}
+\end{equation*}
+is called \emph{lexicographical order} on $A$.
+\end{defi}
+
+\begin{prop}
+\begin{enumerate}
+\item The lexicographical order is again a preorder.
+\item If $\precsim_i$ is a total preorder on $A_i$ for all $i=1,\dotsc,n$ then the lexicographical order on $A$ is again a total preorder.
+\item If $\precsim_i$ is a partial order on $A_i$ for all $i=1,\dotsc,n$ then the lexicographical order on $A$ is again a partial order.
+\item If $\precsim_i$ is a total order on $A_i$ for all $i=1,\dotsc,n$ then the lexicographical order on $A$ is again a total order.
+\end{enumerate}
+\end{prop}
+
+\subsubsection{Preference Relations}
+The relations defined in the last section are the most important in mathematics. But there are other relations, which play an important role in different areas concerned with modeling of preferences. We give a brief overview referring the interested reader to \cite{pref}. The question of modeling preferences occurs in several disciplines:
+\begin{itemize}
+\item Economics, where one tries to model the preferences of a "rational consumer".
+\item Psychology in which the study of preference judgments collected in experiments is quite common.
+\item Political Sciences in which the question of defining a collective preference on the basis of the opinion of several voters is central.
+\item Operational Research in which optimizing an objective function implies the definition of a direction of preference.
+\item Artificial Intelligence in which the creation of autonomous agents able to take decisions implies the modeling of their vision of what is desirable and what is less so.
+\end{itemize}
+
+\begin{defi}[Preference relation]
+A \emph{preference relation} on a set $A$ is a reflexive binary relation on $A$.
+\end{defi}
+
+\begin{exam}
+Let $A$ be the set of floating point numbers representable by a computer. For example, $A$ is the set of (finite) single precision binary floating-point numbers as defined by \cite{ieee754}. We consider two such numbers $a,b\in A$ as "equivalent" if
+\begin{equation*}
+\bigl|a-b\bigr|\le \varepsilon,
+\end{equation*}
+where $\varepsilon\in A$ is a fixed floating-point number, e.g. $10$ times the machine precision. Choose a number $a\in A$ and set $b:= a + \tfrac{2}{3}\varepsilon\in A$ and $c:= b + \tfrac{2}{3}\varepsilon\in A$. Then $a$ is "equivalent" to $b$ and $b$ is "equivalent" to $c$, but $a$ is not "equivalent" to $c$ since
+\begin{equation*}
+\bigl|a-c\bigr|= \dfrac{4}{3}\varepsilon>\varepsilon.
+\end{equation*}
+Thus, there are relations arising quite naturally, which are not transitive.
+\end{exam}
+
+Instead of giving the definitions of different preference relations, we just remark that for a preference relations $\precsim$ the relation $\sim$ associated by \ref{equiv} needs not be transitive and hence is not an equivalence relation. The strict relation $\prec$ defined by \ref{strict} is still transitive. Figure \ref{fig:relations} shows the connections between different relations mentioned so far.
+\begin{figure}[h!]
+\centering
+\begin{tikzpicture}[yscale=0.8,every node/.style={draw,rectangle,line width=1pt}]
+\node (a) at (-4,8) {interval order};
+\node (b) at (-4,6) {semi order};
+\node (c) at (0,4) {total preorder};
+\node (d) at (0,0) {total order};
+\node (e) at (4,6) {preorder};
+\node (f) at (4,2) {partial order};
+\draw[-{Latex[length=10pt]},line width=1.5pt] (a) -- (b);
+\draw[-{Latex[length=10pt]},line width=1.5pt] (b) -- (c);
+\draw[-{Latex[length=10pt]},line width=1.5pt] (c) -- (d);
+\draw[-{Latex[length=10pt]},line width=1.5pt] (e) -- (f);
+\draw[-{Latex[length=10pt]},line width=1.5pt] (e) -- (c);
+\draw[-{Latex[length=10pt]},line width=1.5pt] (f) -- (d);
+
+\begin{pgfonlayer}{background}
+\begin{scope}[fill opacity=0.5,every node/.style={}]
+\node[fill=DarkRed!50, inner sep=3pt, ellipse, fit=(a) (b) (c) (d)] {};
+\node[fill=DarkSlateBlue!50, inner sep=3pt, ellipse, fit=(c) (d) (e) (f)] {};
+\end{scope}
+\end{pgfonlayer}
+\end{tikzpicture}
+\caption{The most important orders in preference modeling. The orders with \textcolor{DarkRed}{red background} are connected, while the orders with \textcolor{DarkSlateBlue}{blue background} are transitive.}
+\label{fig:relations}
+\end{figure}
+
+\subsection{Status Quo}
+We will briefly describe the situation in \citetalias{cpp11} and \citetalias{cppdraft}. As can be seen from table \ref{tab:container} the relational operator \tcode{operator<} of a container requires that the relational operator \tcode{operator<} of the element type induces a strict total order.\footnote{The word "strict" is actually missing.} Moreover, operator \tcode{operator<=} is defined as complement of operator \tcode{operator>} which is for total orders equivalent to our definition but in the general case this is wrong (see remark \ref{complement}).
+
+\begin{longtable}[c]{lp{.14\textwidth}lp{.14\textwidth}lp{.2\textwidth}lp{.2\textwidth}lp{.14\textwidth}}
+\\ \toprule
+\multicolumn{1}{>{\bfseries}c}{Expression}&\multicolumn{1}{>{\bfseries}c}{Return type}&\multicolumn{1}{>{\bfseries}c}{\begin{tabular}[t]{@{}>{\bfseries}c@{}}Operational\\semantics\end{tabular}}&\multicolumn{1}{>{\bfseries}c}{\begin{tabular}[t]{@{}>{\bfseries}c@{}}Assertion/note\\pre-/post-condition\end{tabular}}&\multicolumn{1}{>{\bfseries}c}{Complexity}\\
+\midrule
+\endfirsthead
+
+\toprule
+\multicolumn{1}{>{\bfseries}c}{Expression}&\multicolumn{1}{>{\bfseries}c}{Return type}&\multicolumn{1}{>{\bfseries}c}{\begin{tabular}[t]{@{}>{\bfseries}c@{}}Operational\\semantics\end{tabular}}&\multicolumn{1}{>{\bfseries}c}{\begin{tabular}[t]{@{}>{\bfseries}c@{}}Assertion/note\\pre-/post-condition\end{tabular}}&\multicolumn{1}{>{\bfseries}c}{Complexity}\\
+\midrule
+\endhead
+
+\texttt{a < b} & convertible to \texttt{bool} & \begin{tabular}[t]{@{}>{\ttfamily}l@{}}lexicographical_-\\ compare(\\ a.begin(),\\ a.end(),\\ b.begin(),\\ b.end())\end{tabular} & pre: \texttt{<} is defined for values of \texttt{T}. \texttt{<} is a total ordering relationship. & linear\\
+\texttt{a > b} & convertible to \texttt{bool} & \texttt{b < a} & & linear\\
+\texttt{a <= b} & convertible to \texttt{bool} & \texttt{!(a > b)} & & linear\\
+\texttt{a >= b} & convertible to \texttt{bool} & \texttt{!(a < b)} & & linear\\
+\bottomrule
+\caption{Optional container operations — Table 98 in \citetalias{cpp11} and \citetalias{cppdraft}}
+\label{tab:container}
+\end{longtable}
+
+For sorting and related operations in the \verb|algorithm| library, it is required that the sorting criterion (\tcode{operator<} or \tcode{comp}) induces a strict weak ordering (see figure \ref{fig:algorithm}). 
+\begin{figure}[h!]
+\SetCiteCommand{\citetalias}
+\begin{displaycquote}[][\S 25.4 p3]{cpp11}
+\textelp{} For algorithms other than those described in 25.4.3 to work correctly, \texttt{comp} has to induce a strict weak ordering on the values.
+\end{displaycquote}
+\caption{Requirements for sorting and related operations in library \texttt{algorithm}.}
+\label{fig:algorithm}
+\end{figure}
+
+In summary the standard only considers total preorders (middle column of figure \ref{fig:relations}).
+
+\subsection{Proposal}
+The aim of this proposal is to take the burden of writing boilerplate code away from the programmer. We propose here a way in which this can be achieved for the relational and equality operators. We saw in example \ref{reconstruct} that in general one needs a definition of \tcode{operator<=}. We could have chosen \tcode{operator>=} as well, but we feel that \tcode{operator<=} is more natural. Then all other operators can be defined using only \tcode{operator<=}. This justifies the special treatment of \tcode{operator<=}.\par
+
+We also propose to add the possibility to explicitly default\tcode{operator<=}. In this case \tcode{operator<=} implements the lexicographical order as defined in \ref{lexorder}. There are some open question regarding this order:
+\begin{itemize}
+\item Should all (non-static) members of the class be considered?
+\item Should \verb|mutable| members be ignored?
+\end{itemize}
+
+With this new feature the programming has the full flexibility in implementing relational and equality operators. She can implement all herself, she can explicitly default all or she can implement \tcode{operator<=} and explicitly default all others. In all these cases she gets all operators and it is guaranteed that they are consistent. The risk of introducing errors in the implementation of these operators is reduced to a minimum. Of course, if the programmer has some very special class, she can only define those operators she needs. There are no restrictions.\par
+
+In particular this means that we do not impose any constraints on \tcode{operator<=}. In common situations it should represent a total preorder, but there might be situations where one needs some preference relation like semi order. In this case it is the responsibility of the programmer to remember that the explicitly defaulted \tcode{operator==} does not induce an equivalence relation (it is not transitive).\par
+
+This proposal does not break any existing code, since the new feature must be explicitly "opt in". Also, when one wants to use algorithms in the \verb|algorithm| library, the programmer must make sure that her order satisfies the preconditions as is the case today.
+
 \subsection{Alternatives}
+Library only solution like e.g. \href{http://www.boost.org/doc/libs/1_56_0/libs/utility/operators.htm}{Boost.operators}.
 
 \section{Relation to N4126}
-\citetalias{oleg3}\citetalias{oleg1}\citetalias{oleg2}
-\begin{lstlisting}
-struct A
+In \citetalias{oleg3} which revises \citetalias{oleg1} and \citetalias{oleg2}, \citeauthor{oleg3} proposes a similar feature for explicitly defaulting relational and equality operators. In our opinion this proposal has several shortcomings:
+
+\begin{itemize}
+\item He uses the two operators \tcode{operator<} and \tcode{operator==} as building blocks.
+\item Only lexicographical orders can be defined by explicitly defaulted operators. If the order the user wants to impose only depends on a few member, she has to write every single operator herself again.
+\item Since only lexicographical orders can be defined by explicitly defaulted operators, the programmer has to order the members in the appropriate way. This can lead to more memory consumption because of alignment issues as listing \ref{reorder} shows.
+\begin{lstlisting}[caption=Different order of members leads to different size in memory,label=reorder]
+struct A    // sizeof(A) == 12 on x86 
 {
   short x;
   int   y;
   char  z;
 };
 
-struct B
+struct B    // sizeof(B) == 8 on x86
 {
   char  z;
   short x;
   int   y; 
 };
-
-struct C
-{
-  int   y;
-  short x;
-  char  z;
-};
-
-int main()
-{
-  std::cout << sizeof(A) << "\n" << sizeof(B) << "\n" << sizeof(C);
-}
 \end{lstlisting}
+
+\end{itemize}
 
 \section{Technical Specifications}
 \subsection{Informal Specification}
