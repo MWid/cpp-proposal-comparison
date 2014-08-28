@@ -390,7 +390,44 @@ struct Author
 %\end{lstlisting}
 
 \subsection{Summary}
+With this proposal we can now write the code as follows:
+\begin{lstlisting}[caption=Implementation of relational and equality operators for \tcode{Author} and \tcode{Book} using the new feature of this proposal]
+struct Author
+{
+    // ...
+};
 
+bool operator<=(const Author&, const Author&) = default;
+
+bool operator==(const Author&, const Author&) = default;
+
+bool operator!=(const Author&, const Author&) = default;
+
+bool operator>=(const Author&, const Author&) = default;
+
+bool operator< (const Author&, const Author&) = default;
+
+bool operator> (const Author&, const Author&) = default;
+
+struct Book
+{
+    // ...
+};
+
+bool operator<=(const Book&, const Book&) = default;
+
+bool operator==(const Book&, const Book&) = default;
+
+bool operator!=(const Book&, const Book&) = default;
+
+bool operator>=(const Book&, const Book&) = default;
+
+bool operator< (const Book&, const Book&) = default;
+
+bool operator> (const Book&, const Book&) = default;
+\end{lstlisting}
+
+This is much shorter and cleaner and less error prone. The programmer gets all these operators for free.
 
 \section{Design Decisions}
 \subsection{Mathematical Background}
@@ -589,7 +626,7 @@ A \emph{preference relation} on a set $A$ is a reflexive binary relation on $A$.
 \end{defi}
 
 \begin{exam}
-Let $A$ be the set of floating point numbers representable by a computer. For example, $A$ is the set of (finite) single precision binary floating-point numbers as defined by \cite{ieee754}. We consider two such numbers $a,b\in A$ as "equivalent" if
+Let $A$ be the set of floating point numbers representable by a computer. For example, $A$ is the set of (finite) single precision binary floating-point numbers as defined by \cite{ieee754}. We consider two such numbers $a,b\in A$ as "equivalent", written $a\sim b$ if
 \begin{equation*}
 \bigl|a-b\bigr|\le \varepsilon,
 \end{equation*}
@@ -597,7 +634,8 @@ where $\varepsilon\in A$ is a fixed floating-point number, e.g. $10$ times the m
 \begin{equation*}
 \bigl|a-c\bigr|= \dfrac{4}{3}\varepsilon>\varepsilon.
 \end{equation*}
-Thus, there are relations arising quite naturally, which are not transitive.
+Thus, there are relations arising quite naturally, which are not transitive.\par
+If we define $a\prec b$ as $a < b - \varepsilon$ in the "usual order" on floating-point numbers, then we get a so called semi order $\precsim$ as the union of $\prec$ and $\sim$.
 \end{exam}
 
 Instead of giving the definitions of different preference relations, we just remark that for a preference relations $\precsim$ the relation $\sim$ associated by \ref{equiv} needs not be transitive and hence is not an equivalence relation. The strict relation $\prec$ defined by \ref{strict} is still transitive. Figure \ref{fig:relations} shows the connections between different relations mentioned so far.
@@ -624,7 +662,7 @@ Instead of giving the definitions of different preference relations, we just rem
 \end{scope}
 \end{pgfonlayer}
 \end{tikzpicture}
-\caption{The most important orders in preference modeling. The orders with \textcolor{DarkRed}{red background} are connected, while the orders with \textcolor{DarkSlateBlue}{blue background} are transitive.}
+\caption{The most important orders in preference modeling. The orders with \textcolor{DarkRed!50}{red background} are connected, while the orders with \textcolor{DarkSlateBlue!50}{blue background} are transitive.}
 \label{fig:relations}
 \end{figure}
 
@@ -676,7 +714,9 @@ With this new feature the programming has the full flexibility in implementing r
 
 In particular this means that we do not impose any constraints on \tcode{operator<=}. In common situations it should represent a total preorder, but there might be situations where one needs some preference relation like semi order. In this case it is the responsibility of the programmer to remember that the explicitly defaulted \tcode{operator==} does not induce an equivalence relation (it is not transitive).\par
 
-This proposal does not break any existing code, since the new feature must be explicitly "opt in". Also, when one wants to use algorithms in the \verb|algorithm| library, the programmer must make sure that her order satisfies the preconditions as is the case today.
+This proposal does not break any existing code, since the new feature must be explicitly "opt in". Also, when one wants to use algorithms in the \verb|algorithm| library, the programmer must make sure that her order satisfies the preconditions as is the case today.\par
+
+This proposal does not introduce any new keywords. The keyword \tcode{default} is already part of \citetalias{cpp11} and used in a similar fashion there for constructors and assignment operators. This proposal just extends the usability of this keyword to relational and equality operators.
 
 \subsection{Alternatives}
 Library only solution like e.g. \href{http://www.boost.org/doc/libs/1_56_0/libs/utility/operators.htm}{Boost.operators}.
@@ -685,8 +725,9 @@ Library only solution like e.g. \href{http://www.boost.org/doc/libs/1_56_0/libs/
 In \citetalias{oleg3} which revises \citetalias{oleg1} and \citetalias{oleg2}, \citeauthor{oleg3} proposes a similar feature for explicitly defaulting relational and equality operators. In our opinion this proposal has several shortcomings:
 
 \begin{itemize}
+\item This proposal only focuses on (strict) total orders.
 \item He uses the two operators \tcode{operator<} and \tcode{operator==} as building blocks.
-\item Only lexicographical orders can be defined by explicitly defaulted operators. If the order the user wants to impose only depends on a few member, she has to write every single operator herself again.
+\item Only lexicographical orders can be defined by explicitly defaulted operators. If the order the user wants to impose only depends on a few member or depends on some member functions, she has to write every single operator herself again.
 \item Since only lexicographical orders can be defined by explicitly defaulted operators, the programmer has to order the members in the appropriate way. This can lead to more memory consumption because of alignment issues as listing \ref{reorder} shows.
 \begin{lstlisting}[caption=Different order of members leads to different size in memory,label=reorder]
 struct A    // sizeof(A) == 12 on x86 
@@ -709,7 +750,7 @@ struct B    // sizeof(B) == 8 on x86
 \section{Technical Specifications}
 \subsection{Informal Specification}
 \subsubsection{Free Functions}
-In the following \verb|X| denotes a class, for which \verb|operator<=| is defined (either as member or as free function). We use \verb|const X&| for the type of the parameters for exposition only. We do not restrict the parameter type in any respect. The general rule is that
+In the following \verb|X| denotes a non-union class type, for which \verb|operator<=| is defined (either as member or as free function). We use \verb|const X&| for the type of the parameters for exposition only. We do not restrict the parameter type in any respect. The general rule is that
 \begin{verbatim}
 bool operator@(T1, T2) = default;
 \end{verbatim}
@@ -788,7 +829,7 @@ bool operator>(const X& lhs, const X& rhs)
 \end{verbatim}
 
 \subsubsection{Member Functions}
-In the following \verb|X| denotes a class, for which \verb|operator<=| is defined (either as member or as free function). We use \verb|const X&| for the type of the parameters for exposition only. We do not restrict the parameter type in any respect. The general rule is that
+In the following \verb|X| denotes a non-union class type, for which \verb|operator<=| is defined (either as member or as free function). We use \verb|const X&| for the type of the parameters for exposition only. We do not restrict the parameter type in any respect. The general rule is that
 \begin{verbatim}
 bool operator@(T) = default;
 \end{verbatim}
