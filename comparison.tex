@@ -1,11 +1,13 @@
-﻿\documentclass[a4paper,11pt,final]{article}
+﻿\documentclass[a4paper,11pt,twoside,final]{article}
+
+\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 
 \usepackage[american]{babel} % needed for iso dates
 \usepackage[iso,american]{isodate} % use iso format for dates
 \usepackage[final]{listings} % code listings
 \usepackage{longtable} % auto-breaking tables
 \usepackage{booktabs} % fancy tables
-\usepackage[labelfont=bf,position=below,singlelinecheck=true,width=.8\textwidth]{caption}
+\usepackage[labelfont=bf,position=below,singlelinecheck=true,width=.8\linewidth]{caption}
 \usepackage{relsize} % provide relative font size changes
 \usepackage{underscore} % remove special status of '_' in ordinary text
 \usepackage{verbatim} % improved verbatim environment
@@ -48,10 +50,22 @@
 \usepackage{tocloft}
 \usepackage{titling}
 \usepackage{titlesec}
-\usepackage[top=2cm, bottom=2cm, left=2cm, right=2cm]{geometry}
 \usepackage[absolute]{textpos}
 \setlength{\TPHorizModule}{1cm}
 \setlength{\TPVertModule}{1cm}
+
+\usepackage{fancyhdr}
+\fancyhead{} % clear all header fields
+\makeatletter
+\fancyhead[RO,LE]{\sffamily\bfseries \thepage}
+\fancyhead[RE,LO]{\sffamily\bfseries NXXXX \textemdash\ \@title}
+\makeatother
+\fancyfoot{} % clear all footer fields
+\setlength{\headheight}{14pt}
+\setlength{\headwidth}{\textwidth}
+\renewcommand{\headrulewidth}{0.4pt}
+\renewcommand{\footrulewidth}{0pt}
+\pagestyle{fancy}
 
 \usepackage{natbib}
 \defcitealias{cpp11}{\CppXI}
@@ -680,7 +694,7 @@ We will briefly describe the situation in \citetalias{cpp11} and \citetalias{cpp
 \midrule
 \endhead
 
-\texttt{a < b} & convertible to \texttt{bool} & \begin{tabular}[t]{@{}>{\ttfamily}l@{}}lexicographical_-\\ compare(\\ a.begin(),\\ a.end(),\\ b.begin(),\\ b.end())\end{tabular} & pre: \texttt{<} is defined for values of \texttt{T}. \texttt{<} is a total ordering relationship. & linear\\
+\texttt{a < b} & convertible to \texttt{bool} & \begin{tabular}[t]{@{}>{\ttfamily}l@{}} lexicographical_-\\ compare(\\ a.begin(),\\ a.end(),\\ b.begin(),\\ b.end())\end{tabular} & pre: \texttt{<} is defined for values of \texttt{T}. \texttt{<} is a total ordering relationship. & linear\\
 \texttt{a > b} & convertible to \texttt{bool} & \texttt{b < a} & & linear\\
 \texttt{a <= b} & convertible to \texttt{bool} & \texttt{!(a > b)} & & linear\\
 \texttt{a >= b} & convertible to \texttt{bool} & \texttt{!(a < b)} & & linear\\
